@@ -1,0 +1,46 @@
+# Render Blueprint for the SOALM V2 prediction service.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# This deploys ONE web service built from the Dockerfile in this repo.
+# Your website backend should be its own service (see the commented block at
+# the bottom) — deploy them separately so they scale and restart independently.
+
+services:
+  - type: web
+    name: soalm-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard            # models need RAM; "standard" (2 GB) is a safe start.
+    region: oregon            # pick the region closest to your users.
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SOALM_HOST
+        value: 0.0.0.0
+      - key: SOALM_PORT
+        value: "5000"
+      - key: SOALM_THREADS
+        value: "8"
+      # Render provides PORT; serve.py reads SOALM_PORT, so we pin them equal.
+      # If you prefer, set SOALM_PORT to 10000 and leave Render's default.
+      - key: SOALM_CORS_ORIGINS
+        # Lock this to your website's real origin(s) once you know the URL, e.g.
+        # value: "https://your-frontend.onrender.com,https://yoursite.com"
+        value: "*"
+
+# ---------------------------------------------------------------------------
+# Your website backend would be added as a SECOND service, for example:
+#
+#   - type: web
+#     name: website-backend
+#     runtime: node            # or docker / python, depending on your stack
+#     buildCommand: npm install
+#     startCommand: npm start
+#     plan: starter
+#     envVars:
+#       # Call SOALM over Render's private network (no public hop, free):
+#       - key: SOALM_API_URL
+#         value: http://soalm-api:5000
+#
+# Keeping it commented so this blueprint deploys only SOALM for now.
+# ---------------------------------------------------------------------------

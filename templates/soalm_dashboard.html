@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SOALM | Spatial Intelligence Engine</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #02070d;
+        --panel: rgba(5, 15, 24, 0.78);
+        --border: rgba(0, 174, 255, 0.18);
+        --blue: #00b7ff;
+        --cyan: #19d9ff;
+        --text: #e8f8ff;
+        --muted: #6d8798;
+      }
+
+      body {
+        min-height: 100vh;
+        overflow: hidden;
+        background:
+          radial-gradient(
+            circle at 50% 45%,
+            rgba(0, 133, 255, 0.09),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 50% 100%,
+            rgba(0, 119, 255, 0.08),
+            transparent 35%
+          ),
+          #02070d;
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      /* =====================================================
+           BACKGROUND GRID
+        ===================================================== */
+
+      .grid-bg {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.13;
+
+        background-image:
+          linear-gradient(rgba(0, 180, 255, 0.12) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 180, 255, 0.12) 1px, transparent 1px);
+
+        background-size: 45px 45px;
+
+        mask-image: radial-gradient(circle at center, black, transparent 75%);
+      }
+
+      /* =====================================================
+           TOP BAR
+        ===================================================== */
+
+      .topbar {
+        position: relative;
+        z-index: 10;
+
+        height: 74px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 0 42px;
+
+        border-bottom: 1px solid var(--border);
+
+        background: rgba(1, 8, 14, 0.75);
+        backdrop-filter: blur(15px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+
+        border: 1px solid var(--blue);
+        border-radius: 50%;
+
+        display: grid;
+        place-items: center;
+
+        color: var(--cyan);
+
+        box-shadow:
+          0 0 18px rgba(0, 183, 255, 0.3),
+          inset 0 0 12px rgba(0, 183, 255, 0.15);
+      }
+
+      .brand-mark::before {
+        content: "S";
+        font-weight: 700;
+        font-size: 17px;
+      }
+
+      .brand-name {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 3px;
+      }
+
+      .brand-sub {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-top: 3px;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+
+        color: #75e6a3;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+
+        border-radius: 50%;
+        background: #43e889;
+
+        box-shadow: 0 0 12px #43e889;
+
+        animation: pulse 1.6s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        50% {
+          opacity: 0.45;
+          transform: scale(0.65);
+        }
+      }
+
+      /* =====================================================
+           MAIN
+        ===================================================== */
+
+      .main {
+        position: relative;
+        height: calc(100vh - 74px);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* =====================================================
+           LEFT INFORMATION
+        ===================================================== */
+
+      .left-panel {
+        position: absolute;
+        left: 42px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        width: 245px;
+
+        padding: 22px;
+
+        border: 1px solid var(--border);
+        background: var(--panel);
+
+        backdrop-filter: blur(14px);
+
+        border-radius: 12px;
+      }
+
+      .panel-title {
+        color: var(--cyan);
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
+
+      .metric {
+        padding: 13px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .metric:last-child {
+        border-bottom: none;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 1px;
+      }
+
+      .metric-value {
+        margin-top: 5px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      /* =====================================================
+           SPHERE AREA
+        ===================================================== */
+
+      .core {
+        position: relative;
+
+        width: 620px;
+        height: 560px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tagline {
+        position: absolute;
+        top: 15px;
+
+        font-size: 13px;
+        letter-spacing: 4px;
+
+        color: rgba(220, 244, 255, 0.7);
+
+        text-transform: uppercase;
+      }
+
+      /* =====================================================
+           ECG
+        ===================================================== */
+
+      .ecg {
+        position: absolute;
+
+        width: 900px;
+        max-width: 100vw;
+
+        height: 150px;
+
+        left: 50%;
+        top: 50%;
+
+        transform: translate(-50%, -50%);
+
+        pointer-events: none;
+
+        opacity: 0.95;
+      }
+
+      .ecg-line {
+        fill: none;
+        stroke: var(--blue);
+        stroke-width: 2;
+
+        filter: drop-shadow(0 0 5px var(--blue))
+          drop-shadow(0 0 12px rgba(0, 183, 255, 0.5));
+
+        stroke-dasharray: 900;
+        stroke-dashoffset: 900;
+
+        animation: ecgMove 3s linear infinite;
+      }
+
+      @keyframes ecgMove {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* =====================================================
+           DOTTED SPHERE
+        ===================================================== */
+
+      .sphere {
+        position: relative;
+
+        width: 310px;
+        height: 310px;
+
+        border-radius: 50%;
+
+        transform-style: preserve-3d;
+
+        animation: sphereFloat 5s ease-in-out infinite;
+
+        filter: drop-shadow(0 0 18px rgba(0, 183, 255, 0.5))
+          drop-shadow(0 0 55px rgba(0, 120, 255, 0.22));
+      }
+
+      @keyframes sphereFloat {
+        0%,
+        100% {
+          transform: translateY(0) rotateX(0deg);
+        }
+
+        50% {
+          transform: translateY(-8px) rotateX(2deg);
+        }
+      }
+
+      /*
+           Three-dimensional-looking dotted globe.
+           JS generates latitude/longitude points.
+        */
+
+      .dot {
+        position: absolute;
+
+        width: 4px;
+        height: 4px;
+
+        border-radius: 50%;
+
+        background: #20cfff;
+
+        box-shadow:
+          0 0 5px #20cfff,
+          0 0 11px rgba(0, 183, 255, 0.7);
+
+        transform: translate(-50%, -50%) translateZ(0);
+
+        transition:
+          width 0.2s,
+          height 0.2s,
+          opacity 0.2s;
+      }
+
+      .dot.active {
+        width: 6px;
+        height: 6px;
+
+        background: #dffaff;
+
+        box-shadow:
+          0 0 7px #ffffff,
+          0 0 18px #00cfff;
+      }
+
+      /* Outer atmospheric glow */
+
+      .sphere-glow {
+        position: absolute;
+
+        width: 360px;
+        height: 360px;
+
+        border-radius: 50%;
+
+        background: radial-gradient(
+          circle,
+          rgba(0, 185, 255, 0.09),
+          transparent 65%
+        );
+
+        filter: blur(10px);
+
+        pointer-events: none;
+      }
+
+      /* =====================================================
+           BASE / PLATFORM
+        ===================================================== */
+
+      .platform {
+        position: absolute;
+
+        bottom: 55px;
+
+        width: 280px;
+        height: 35px;
+
+        border-radius: 50%;
+
+        background: radial-gradient(
+          ellipse,
+          rgba(0, 194, 255, 0.5),
+          rgba(0, 130, 255, 0.05) 65%,
+          transparent
+        );
+
+        filter: blur(4px);
+
+        box-shadow: 0 0 35px rgba(0, 180, 255, 0.35);
+      }
+
+      .rings {
+        position: absolute;
+
+        bottom: 32px;
+
+        width: 460px;
+        height: 100px;
+
+        border-radius: 50%;
+
+        border: 1px solid rgba(0, 183, 255, 0.13);
+
+        box-shadow:
+          0 0 0 25px rgba(0, 183, 255, 0.025),
+          0 0 0 50px rgba(0, 183, 255, 0.018);
+
+        transform: perspective(300px) rotateX(65deg);
+
+        animation: ringPulse 3s ease-in-out infinite;
+      }
+
+      @keyframes ringPulse {
+        0%,
+        100% {
+          opacity: 0.45;
+          transform: perspective(300px) rotateX(65deg) scale(1);
+        }
+
+        50% {
+          opacity: 0.8;
+          transform: perspective(300px) rotateX(65deg) scale(1.04);
+        }
+      }
+
+      /* =====================================================
+           RIGHT PANEL
+        ===================================================== */
+
+      .right-panel {
+        position: absolute;
+        right: 42px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        width: 245px;
+
+        padding: 22px;
+
+        border: 1px solid var(--border);
+
+        background: var(--panel);
+
+        backdrop-filter: blur(14px);
+
+        border-radius: 12px;
+      }
+
+      .feature {
+        display: flex;
+        justify-content: space-between;
+
+        padding: 12px 0;
+
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .feature span:first-child {
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .feature span:last-child {
+        color: var(--text);
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      /* =====================================================
+           FOOTER
+        ===================================================== */
+
+      .footer {
+        position: absolute;
+        bottom: 24px;
+
+        left: 50%;
+        transform: translateX(-50%);
+
+        color: #466274;
+
+        font-size: 9px;
+
+        letter-spacing: 2px;
+
+        white-space: nowrap;
+      }
+
+      /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+      @media (max-width: 1100px) {
+        .left-panel,
+        .right-panel {
+          display: none;
+        }
+
+        .core {
+          transform: scale(0.9);
+        }
+      }
+
+      @media (max-width: 650px) {
+        .topbar {
+          padding: 0 20px;
+        }
+
+        .brand-sub {
+          display: none;
+        }
+
+        .core {
+          transform: scale(0.62);
+        }
+
+        .tagline {
+          font-size: 11px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid-bg"></div>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+
+        <div>
+          <div class="brand-name">SOALM</div>
+
+          <div class="brand-sub">SPATIAL ORIENTED AI LEARNING MODEL</div>
+        </div>
+      </div>
+
+      <div class="status">
+        <span class="status-dot"></span>
+
+        ENGINE ONLINE
+      </div>
+    </header>
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+      <!-- LEFT -->
+
+      <section class="left-panel">
+        <div class="panel-title">ENGINE STATUS</div>
+
+        <div class="metric">
+          <div class="metric-label">MODEL</div>
+
+          <div class="metric-value">SOALM V1.4</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">FEATURES</div>
+
+          <div class="metric-value">40</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">SPATIAL ENGINE</div>
+
+          <div class="metric-value">ACTIVE</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">PREDICTION MODE</div>
+
+          <div class="metric-value">PHYSICS-INFORMED</div>
+        </div>
+      </section>
+
+      <!-- =================================================
+             CENTRAL INTELLIGENCE CORE
+        ================================================== -->
+
+      <section class="core">
+        <div class="tagline">Spatial Intelligence Core</div>
+
+        <div class="sphere-glow"></div>
+
+        <!-- ECG -->
+
+        <svg class="ecg" viewBox="0 0 900 150" preserveAspectRatio="none">
+          <path
+            class="ecg-line"
+            d="
+                    M0 75
+                    L70 75
+                    L85 73
+                    L95 75
+                    L105 75
+                    L115 75
+                    L125 65
+                    L135 85
+                    L145 75
+                    L165 75
+                    L185 75
+                    L200 72
+                    L215 75
+
+                    L300 75
+                    L315 75
+                    L325 70
+                    L335 80
+                    L345 75
+                    L365 75
+
+                    L390 75
+                    L400 40
+                    L410 110
+                    L420 75
+
+                    L445 75
+                    L460 75
+                    L480 72
+                    L500 75
+
+                    L580 75
+                    L600 75
+                    L615 72
+                    L625 78
+                    L635 75
+
+                    L650 75
+                    L660 65
+                    L670 85
+                    L680 75
+
+                    L710 75
+                    L730 75
+                    L745 70
+                    L755 80
+                    L765 75
+
+                    L900 75
+                    "
+          />
+        </svg>
+
+        <!-- DOTTED SPHERE -->
+
+        <div class="sphere" id="sphere"></div>
+
+        <!-- FLOOR -->
+
+        <div class="rings"></div>
+
+        <div class="platform"></div>
+      </section>
+
+      <!-- RIGHT -->
+
+      <section class="right-panel">
+        <div class="panel-title">INTELLIGENCE PIPELINE</div>
+
+        <div class="feature">
+          <span>WEATHER</span>
+          <span>LIVE</span>
+        </div>
+
+        <div class="feature">
+          <span>FEATURE ENGINE</span>
+          <span>40D</span>
+        </div>
+
+        <div class="feature">
+          <span>ML INFERENCE</span>
+          <span>READY</span>
+        </div>
+
+        <div class="feature">
+          <span>SPATIAL GRID</span>
+          <span>5 × 5</span>
+        </div>
+
+        <div class="feature">
+          <span>GIS ZONES</span>
+          <span>ACTIVE</span>
+        </div>
+
+        <div class="feature">
+          <span>RISK CLASSES</span>
+          <span>4</span>
+        </div>
+      </section>
+
+      <div class="footer">PREDICT • ANALYZE • LOCALIZE • RESPOND</div>
+    </main>
+
+    <script>
+      /* =====================================================
+           SOALM DOTTED INTELLIGENCE SPHERE
+        ===================================================== */
+
+      const sphere = document.getElementById("sphere");
+
+      const radius = 150;
+
+      /*
+           Generate latitude / longitude points.
+
+           This creates a real spherical distribution rather
+           than randomly placing dots in a circle.
+        */
+
+      const latitudeLines = 17;
+      const longitudePoints = 30;
+
+      const dots = [];
+
+      for (let latIndex = 0; latIndex < latitudeLines; latIndex++) {
+        const phi = Math.PI * (latIndex / (latitudeLines - 1));
+
+        const y = Math.cos(phi);
+
+        const ringRadius = Math.sin(phi);
+
+        for (let lonIndex = 0; lonIndex < longitudePoints; lonIndex++) {
+          const theta = (2 * Math.PI * lonIndex) / longitudePoints;
+
+          const x = ringRadius * Math.cos(theta);
+
+          const z = ringRadius * Math.sin(theta);
+
+          const dot = document.createElement("div");
+
+          dot.className = "dot";
+
+          /*
+                   Convert spherical coordinates into
+                   2D screen coordinates.
+
+                   z controls visibility / brightness.
+                */
+
+          const screenX = 155 + x * radius;
+
+          const screenY = 155 - y * radius;
+
+          const depth = (z + 1) / 2;
+
+          dot.style.left = `${screenX}px`;
+
+          dot.style.top = `${screenY}px`;
+
+          dot.style.opacity = 0.18 + depth * 0.82;
+
+          const scale = 0.55 + depth * 0.9;
+
+          dot.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+          sphere.appendChild(dot);
+
+          dots.push({
+            element: dot,
+            x,
+            y,
+            z,
+          });
+        }
+      }
+
+      /* =====================================================
+           INTELLIGENCE ACTIVITY
+        ===================================================== */
+
+      function activateRandomDots() {
+        dots.forEach((dot) => {
+          dot.element.classList.remove("active");
+        });
+
+        const count = 8 + Math.floor(Math.random() * 10);
+
+        for (let i = 0; i < count; i++) {
+          const index = Math.floor(Math.random() * dots.length);
+
+          dots[index].element.classList.add("active");
+        }
+      }
+
+      activateRandomDots();
+
+      setInterval(activateRandomDots, 850);
+
+      /* =====================================================
+           SUBTLE SPHERE ROTATION
+        ===================================================== */
+
+      let rotation = 0;
+
+      function rotateSphere() {
+        rotation += 0.15;
+
+        dots.forEach((dot) => {
+          const angle = Math.atan2(dot.z, dot.x);
+
+          const distance = Math.sqrt(dot.x * dot.x + dot.z * dot.z);
+
+          const newAngle = angle + (rotation * Math.PI) / 180;
+
+          const x = distance * Math.cos(newAngle);
+
+          const z = distance * Math.sin(newAngle);
+
+          const screenX = 155 + x * radius;
+
+          const screenY = 155 - dot.y * radius;
+
+          const depth = (z + 1) / 2;
+
+          dot.element.style.left = `${screenX}px`;
+
+          dot.element.style.top = `${screenY}px`;
+
+          dot.element.style.opacity = 0.12 + depth * 0.88;
+
+          const scale = 0.5 + depth * 1.0;
+
+          dot.element.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        });
+
+        requestAnimationFrame(rotateSphere);
+      }
+
+      rotateSphere();
+
+      /* =====================================================
+           TITLE / TAB VISUAL
+        ===================================================== */
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          document.title = "SOALM | Standby";
+        } else {
+          document.title = "SOALM | Spatial Intelligence Engine";
+        }
+      });
+    </script>
+  </body>
+</html>

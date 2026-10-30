@@ -1,0 +1,20 @@
+# Run the SOALM V2 prediction service.
+#
+#   docker compose up --build soalm
+#
+# The service listens on http://localhost:5000
+
+services:
+  soalm:
+    build: .
+    image: soalm-service:latest
+    ports:
+      - "5000:5000"
+    environment:
+      SOALM_HOST: 0.0.0.0
+      SOALM_PORT: "5000"
+      SOALM_THREADS: "8"
+      # Lock this down to your website's origin(s) in production, e.g.
+      #   SOALM_CORS_ORIGINS: "https://yoursite.com,https://www.yoursite.com"
+      SOALM_CORS_ORIGINS: "*"
+    restart: unless-stopped

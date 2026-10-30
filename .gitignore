@@ -1,0 +1,54 @@
+# ==========================================================================
+# SOALM — what NOT to commit.
+#
+# The service only needs: the .py files, templates/, weather/weather.json,
+# and data/era5/models_v2_final/. Everything else below is training data,
+# build output, or local junk (the full data/ folder is ~7.4 GB).
+# ==========================================================================
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+
+# ---- Large training / source data the SERVICE never reads at runtime ----
+# We DO keep data/era5/models_v2_final/ (the 29 trained models).
+# Everything else under data/ is training/source data (~7.4 GB) and is excluded
+# by naming the heavy folders directly, so git never walks them.
+data/era5/checkpoints/
+data/era5/checkpoints_v2_final/
+data/era5/features/
+data/era5/features_v2_final/
+data/era5/logs/
+data/era5/logs_v2_final/
+data/era5/prepared/
+data/era5/raw/
+data/flood_training/
+data/sentinel1/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Misc
+structure.txt
+*.log
+
+# Other training artifacts not used by the service
+data/flood_training/
+data/sentinel1/

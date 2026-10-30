@@ -1,0 +1,41 @@
+# Keep the image small: only ship code, the trained models, and the weather cache.
+
+# Python / build junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# PyInstaller output (not needed in the container)
+build/
+dist/
+*.spec
+
+# Training / raw data the SERVICE never reads at runtime.
+data/era5/checkpoints/
+data/era5/checkpoints_v2_final/
+data/era5/features/
+data/era5/features_v2_final/
+data/era5/logs/
+data/era5/logs_v2_final/
+data/era5/prepared/
+data/era5/raw/
+
+# We DO need data/era5/models_v2_final/ — it is kept (not ignored).
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docs / misc
+structure.txt
