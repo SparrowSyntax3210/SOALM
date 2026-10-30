@@ -52,3 +52,7 @@ structure.txt
 # Other training artifacts not used by the service
 data/flood_training/
 data/sentinel1/
+
+# Server-specific settings (created by deploy/oracle-setup.sh)
+.env
+!deploy/.env.example

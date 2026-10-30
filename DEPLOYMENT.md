@@ -94,3 +94,53 @@ const data = await res.json();
 
 Put the service behind HTTPS (a reverse proxy like Caddy/Nginx, or the
 platform's built-in TLS) before pointing a production site at it.
+
+---
+
+## Option 3 — Oracle Cloud Always Free (free, always on)
+
+The service needs about 1.3 GB RAM (1.6 GB peak), so 512 MB free tiers are too
+small. An OCI Always Free Ampere A1 VM (up to 2 OCPU / 12 GB) runs it for free.
+
+### 1. Create the VM (OCI console)
+
+1. **Compute → Instances → Create instance**
+2. Image: **Canonical Ubuntu 24.04** (or 22.04)
+3. Shape: **Ampere → VM.Standard.A1.Flex**, 1–2 OCPU, 6–12 GB RAM
+   (marked "Always Free-eligible")
+4. Networking: keep "Assign a public IPv4 address" on
+5. SSH keys: download the private key (or paste your own public key)
+6. Create, then copy the instance's **Public IP**
+
+If you get "Out of capacity", try another availability domain or retry later.
+
+### 2. Open ports 80 and 443 (OCI console)
+
+Instance → **Subnet** → **Security List** → **Add Ingress Rules**:
+
+| Source CIDR | Protocol | Destination port |
+| ----------- | -------- | ---------------- |
+| 0.0.0.0/0   | TCP      | 80               |
+| 0.0.0.0/0   | TCP      | 443              |
+
+The setup script opens the same ports in the VM's own firewall.
+
+### 3. Run the setup script (on the VM)
+
+```powershell
+ssh -i path\to\private.key ubuntu@<PUBLIC_IP>
+```
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/SparrowSyntax3210/SOALM/main/deploy/oracle-setup.sh | bash
+```
+
+It installs Docker, clones the repo, builds the image, and starts SOALM behind
+Caddy with a free Let's Encrypt certificate at `https://<ip-with-dashes>.sslip.io`.
+
+### Updating / settings
+
+- Deploy new code: push to GitHub, then re-run the same command on the VM.
+- Change domain or CORS: edit `~/SOALM/.env`, then
+  `cd ~/SOALM && sudo docker compose --profile https up -d`
+- Logs: `cd ~/SOALM && sudo docker compose logs -f soalm`

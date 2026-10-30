@@ -1,0 +1,7 @@
+# Files executed on the Linux server must keep LF line endings,
+# even when committed from Windows.
+*.sh        text eol=lf
+Caddyfile   text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf
+.env*       text eol=lf

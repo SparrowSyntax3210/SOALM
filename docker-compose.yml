@@ -1,20 +1,47 @@
 # Run the SOALM V2 prediction service.
 #
-#   docker compose up --build soalm
+#   Local / plain HTTP:        docker compose up --build soalm
+#                              -> http://localhost:5000
 #
-# The service listens on http://localhost:5000
+#   Server with free HTTPS:    docker compose --profile https up -d --build
+#                              -> https://$SOALM_DOMAIN  (Caddy + Let's Encrypt)
+#
+# Settings come from a .env file next to this file (see deploy/.env.example).
 
 services:
   soalm:
     build: .
     image: soalm-service:latest
     ports:
-      - "5000:5000"
+      # Bound to localhost only: on a server, the public entry point is Caddy.
+      - "127.0.0.1:5000:5000"
     environment:
       SOALM_HOST: 0.0.0.0
       SOALM_PORT: "5000"
       SOALM_THREADS: "8"
-      # Lock this down to your website's origin(s) in production, e.g.
-      #   SOALM_CORS_ORIGINS: "https://yoursite.com,https://www.yoursite.com"
-      SOALM_CORS_ORIGINS: "*"
+      # Comma-separated origins allowed to call /api/*, e.g.
+      #   https://yoursite.com,https://www.yoursite.com
+      SOALM_CORS_ORIGINS: "${SOALM_CORS_ORIGINS:-*}"
     restart: unless-stopped
+
+  # HTTPS reverse proxy. Gets and renews a Let's Encrypt certificate for
+  # SOALM_DOMAIN automatically. Enabled only with: --profile https
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SOALM_DOMAIN: "${SOALM_DOMAIN:-localhost}"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - soalm
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:

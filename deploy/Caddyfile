@@ -1,0 +1,6 @@
+# Public HTTPS entry point for SOALM.
+# Caddy fetches and renews a Let's Encrypt certificate for this domain.
+{$SOALM_DOMAIN} {
+	encode gzip
+	reverse_proxy soalm:5000
+}
