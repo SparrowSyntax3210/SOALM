@@ -31,8 +31,9 @@ from weather.weather_updater import start_weather_updater
 
 def main() -> None:
     host = os.environ.get("SOALM_HOST", "0.0.0.0")
-    # Prefer SOALM_PORT, then a platform-provided PORT (Render/Heroku), else 5000.
-    port = int(os.environ.get("SOALM_PORT") or os.environ.get("PORT") or "5000")
+    # A platform-provided PORT (Cloud Run, Render, Heroku) wins, because the
+    # platform routes traffic to that port. Otherwise SOALM_PORT, else 5000.
+    port = int(os.environ.get("PORT") or os.environ.get("SOALM_PORT") or "5000")
     threads = int(os.environ.get("SOALM_THREADS", "8"))
 
     # Keep the offline weather cache fresh in the background.
